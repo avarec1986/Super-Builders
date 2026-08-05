@@ -1,0 +1,40 @@
+name: Debug Namespace Patch
+
+on: 
+  workflow_dispatch
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Clone WildKernels Samsung Repository
+        run: |
+          git clone --depth=1 --branch SM-S918B-Oneui8 \
+            https://github.com/WildKernels/Samsung_Kernels.git wildkernel
+      
+      - name: Check fs/namespace.c structure
+        run: |
+          echo "=========================================="
+          echo "=== INCLUDES IN fs/namespace.c ===" 
+          echo "=========================================="
+          head -50 wildkernel/kernel_platform/common/fs/namespace.c | grep -n "^#include"
+          
+          echo ""
+          echo "=========================================="
+          echo "=== FULL HEADER BLOCK (Lines 1-45) ===" 
+          echo "=========================================="
+          sed -n '1,45p' wildkernel/kernel_platform/common/fs/namespace.c
+          
+          echo ""
+          echo "=========================================="
+          echo "=== CHECKING FOR KDP-RELATED CODE ===" 
+          echo "=========================================="
+          grep -n "CONFIG_KDP_NS\|kdp_mount\|fslog" wildkernel/kernel_platform/common/fs/namespace.c || echo "No KDP/fslog patterns found"
+          
+          echo ""
+          echo "=========================================="
+          echo "=== LINES AROUND 3872-3880 ===" 
+          echo "=========================================="
+          sed -n '3870,3880p' wildkernel/kernel_platform/common/fs/namespace.c
