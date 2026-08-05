@@ -406,22 +406,22 @@ jobs:
       uses: actions/cache@v4
       with:
         path: |
-          toolchain/clang-r450784e
+          toolchain/clang-r450784d
           toolchain/kernel-build-tools
-        key: aosp-clang-r450784e-build-tools-v1
+        key: aosp-clang-r450784d-build-tools-v1
 
     - name: Download AOSP Toolchain
       if: steps.cache-toolchain.outputs.cache-hit != 'true'
       run: |
-        mkdir -p toolchain/clang-r450784e
-        curl -LSs "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android13-release/clang-r450784e.tar.gz" \
+        mkdir -p toolchain/clang-r450784d
+        curl -LSs "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android13-release/clang-r450784d.tar.gz" \
           -o /tmp/clang.tar.gz
-        tar -xzf /tmp/clang.tar.gz -C toolchain/clang-r450784e
+        tar -xzf /tmp/clang.tar.gz -C toolchain/clang-r450784d
         rm /tmp/clang.tar.gz
         git clone --depth=1 -b main \
           https://android.googlesource.com/kernel/prebuilts/build-tools \
           toolchain/kernel-build-tools
-        toolchain/clang-r450784e/bin/clang --version | head -2
+        toolchain/clang-r450784d/bin/clang --version | head -2
 
     - name: Build Kernel
       working-directory: ${{ env.SYNC_DIR }}
@@ -432,11 +432,11 @@ jobs:
         TC="$GITHUB_WORKSPACE/toolchain"
 
         CLANG_DIR=$(find . -path '*/prebuilts/clang/host/linux-x86/clang-*' -maxdepth 6 -type d 2>/dev/null | sort -V | tail -1)
-        if [ -x "$TC/clang-r450784e/bin/clang" ]; then
-          export PATH="$TC/clang-r450784e/bin:$TC/kernel-build-tools/linux-x86/bin:$PATH"
+        if [ -x "$TC/clang-r450784d/bin/clang" ]; then
+          export PATH="$TC/clang-r450784d/bin:$TC/kernel-build-tools/linux-x86/bin:$PATH"
           export HOSTCFLAGS="-I$TC/kernel-build-tools/linux-x86/include"
           export HOSTLDFLAGS="-Wl,-rpath,$TC/kernel-build-tools/linux-x86/lib64 -L$TC/kernel-build-tools/linux-x86/lib64 -fuse-ld=lld --rtlib=compiler-rt"
-          echo "Using AOSP clang r450784e"
+          echo "Using AOSP clang r450784d"
         elif [ -n "$CLANG_DIR" ] && [ -x "$(realpath "$CLANG_DIR")/bin/clang" ]; then
           export PATH="$(realpath "$CLANG_DIR")/bin:$PATH"
           echo "Using prebuilt clang: $CLANG_DIR"
